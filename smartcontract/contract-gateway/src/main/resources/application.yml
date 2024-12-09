@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: legalcontract
+
+server:
+  port: 9000
