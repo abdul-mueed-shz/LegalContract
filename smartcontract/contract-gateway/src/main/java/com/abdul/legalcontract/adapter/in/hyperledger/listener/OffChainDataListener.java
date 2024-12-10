@@ -6,6 +6,7 @@ import com.abdul.legalcontract.config.parser.BlockParser;
 import com.abdul.legalcontract.domain.hyperledger.model.Write;
 import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.hyperledger.fabric.client.FileCheckpointer;
 import org.hyperledger.fabric.client.Network;
 import org.springframework.stereotype.Component;
@@ -20,47 +21,44 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class OffChainDataListener {
 
-    private static final Path CHECKPOINT_FILE =
-            Paths.get(Utils.getEnvOrDefault("CHECKPOINT_FILE", "checkpoint.json"));
+
     private static final Path STORE_FILE =
             Paths.get(Utils.getEnvOrDefault("STORE_FILE", "store.log"));
     private static final int SIMULATED_FAILURE_COUNT =
             Utils.getEnvOrDefault("SIMULATED_FAILURE_COUNT", Integer::parseUnsignedInt, 0);
 
     private static final long START_BLOCK = 0L;
-    private static final Gson GSON = new Gson();
 
-    private int transactionCount = 0; // Used only to simulate failures
-
+    private final Gson GSON;
     private final Network network;
+    private final FileCheckpointer fileCheckpointer;
 
     public void run() throws IOException {
-        var checkpointer = new FileCheckpointer(CHECKPOINT_FILE);
-        System.out.println("Starting event listening from block "
-                + Long.toUnsignedString(checkpointer.getBlockNumber().orElse(START_BLOCK)));
-        System.out.println(checkpointer.getTransactionId()
+        log.info("Starting event listening from block {}",
+                Long.toUnsignedString(fileCheckpointer.getBlockNumber().orElse(START_BLOCK)));
+
+        log.info(fileCheckpointer.getTransactionId()
                 .map(transactionId -> "Last processed transaction ID within block: " + transactionId)
                 .orElse("No last processed transaction ID"));
-        if (SIMULATED_FAILURE_COUNT > 0) {
-            System.out.println("Simulating a write failure every " + SIMULATED_FAILURE_COUNT + " transactions");
-        }
+
         var blocks = network.newBlockEventsRequest()
                 .startBlock(START_BLOCK) // Used only if there is no checkpoint block number
-                .checkpoint(checkpointer)
+                .checkpoint(fileCheckpointer)
                 .build()
                 .getEvents();
+
         blocks.forEachRemaining(blockProto -> {
             var block = BlockParser.parseBlock(blockProto);
-            var processor = new BlockProcessor(block, checkpointer);
+            var processor = new BlockProcessor(block, fileCheckpointer);
             processor.process();
         });
     }
 
     private void applyWritesToOffChainStore(final long blockNumber, final String transactionId,
                                             final List<Write> writes) throws IOException {
-        simulateFailureIfRequired();
 
         try (var writer = new StringWriter()) {
             for (var write : writes) {
@@ -69,13 +67,6 @@ public class OffChainDataListener {
             }
 
             Files.writeString(STORE_FILE, writer.toString(), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
-        }
-    }
-
-    private void simulateFailureIfRequired() {
-        if (SIMULATED_FAILURE_COUNT > 0 && transactionCount++ >= SIMULATED_FAILURE_COUNT) {
-            transactionCount = 0;
-            throw new RuntimeException("Simulated write failure");
         }
     }
 }

@@ -5,10 +5,7 @@ import com.google.gson.GsonBuilder;
 import io.grpc.Grpc;
 import io.grpc.ManagedChannel;
 import io.grpc.TlsChannelCredentials;
-import org.hyperledger.fabric.client.Contract;
-import org.hyperledger.fabric.client.Gateway;
-import org.hyperledger.fabric.client.Hash;
-import org.hyperledger.fabric.client.Network;
+import org.hyperledger.fabric.client.*;
 import org.hyperledger.fabric.client.identity.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,10 +20,13 @@ import java.util.concurrent.TimeUnit;
 
 @Configuration
 public class FabricConfig {
+
     public static final String MSP_ID = System.getenv().getOrDefault("MSP_ID", "Org1MSP");
     // Gateway peer end point.
     public static final String PEER_ENDPOINT = "localhost:7051";
+
     public static final String OVERRIDE_AUTH = "peer0.org1.example.com";
+
     // Path to crypto materials.
     public static final Path CRYPTO_PATH =
             Paths.get("").toAbsolutePath()
@@ -34,9 +34,11 @@ public class FabricConfig {
     // Path to user certificate.
     public static final Path CERT_DIR_PATH =
             CRYPTO_PATH.resolve(Paths.get("users/User1@org1.example.com/msp/signcerts"));
+
     // Path to user private key directory.
     public static final Path KEY_DIR_PATH =
             CRYPTO_PATH.resolve(Paths.get("users/User1@org1.example.com/msp/keystore"));
+
     // Path to peer tls certificate.
     public static final Path TLS_CERT_PATH =
 
@@ -44,8 +46,17 @@ public class FabricConfig {
 
     public static final String CHANNEL_NAME =
             System.getenv().getOrDefault("CHANNEL_NAME", "olab");
+
     public static final String CHAINCODE_NAME =
             System.getenv().getOrDefault("CHAINCODE_NAME", "legalContract");
+
+    private static final Path CHECKPOINT_FILE =
+            Paths.get(Utils.getEnvOrDefault("CHECKPOINT_FILE", "checkpoint.json"));
+
+    @Bean
+    FileCheckpointer getFileCheckPointer() throws IOException {
+        return new FileCheckpointer(CHECKPOINT_FILE);
+    }
 
     @Bean
     public Gson getGson() {

@@ -1,14 +1,19 @@
 package com.abdul.legalcontract.domain.hyperledger.model;
 
+import lombok.AccessLevel;
+import lombok.Getter;
 import org.hyperledger.fabric.protos.ledger.rwset.kvrwset.KVWrite;
 
 import java.nio.charset.StandardCharsets;
 
+@Getter
 public class Write {
     private final String channelName;
     private final String namespace;
     private final String key;
     private final boolean isDelete;
+
+    @Getter(AccessLevel.NONE)
     private final String value; // Store as String for readability when serialized to JSON.
 
     public Write(final String channelName, final String namespace, final KVWrite write) {
@@ -19,41 +24,6 @@ public class Write {
         this.value = write.getValue().toString(StandardCharsets.UTF_8);
     }
 
-    /**
-     * Channel whose ledger is being updated.
-     *
-     * @return A channel name.
-     */
-    public String getChannelName() {
-        return channelName;
-    }
-
-    /**
-     * Key name within the ledger namespace.
-     *
-     * @return A ledger key.
-     */
-    public String getKey() {
-        return key;
-    }
-
-    /**
-     * Whether the key and associated value are being deleted.
-     *
-     * @return {@code true} if the ledger key is being deleted; otherwise {@code false}.
-     */
-    public boolean isDelete() {
-        return isDelete;
-    }
-
-    /**
-     * Namespace within the ledger.
-     *
-     * @return A ledger namespace.
-     */
-    public String getNamespace() {
-        return namespace;
-    }
 
     /**
      * If {@link #isDelete()}` is {@code false}, the value written to the key; otherwise ignored.

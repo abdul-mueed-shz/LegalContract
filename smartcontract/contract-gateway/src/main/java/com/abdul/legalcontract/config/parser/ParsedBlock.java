@@ -11,6 +11,7 @@ import org.hyperledger.fabric.protos.common.BlockMetadataIndex;
 import org.hyperledger.fabric.protos.common.Envelope;
 import org.hyperledger.fabric.protos.common.Payload;
 import org.hyperledger.fabric.protos.peer.TxValidationCode;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +19,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+@Service
 class ParsedBlock implements Block {
     private final org.hyperledger.fabric.protos.common.Block block;
     private final AtomicReference<List<Transaction>> cachedTransactions = new AtomicReference<>();
