@@ -32,4 +32,5 @@ public class CreateLegalContractUseCaseImpl implements CreateLegalContractUseCas
         );
         System.out.println("*** Transaction committed successfully");
     }
+
 }

@@ -9,6 +9,7 @@
       <list>
         <option value="$PROJECT_DIR$/smartcontract/legalcontract/pom.xml" />
         <option value="$PROJECT_DIR$/smartcontract/contract/pom.xml" />
+        <option value="$PROJECT_DIR$/smartcontract/contract-gateway/pom.xml" />
       </list>
     </option>
   </component>

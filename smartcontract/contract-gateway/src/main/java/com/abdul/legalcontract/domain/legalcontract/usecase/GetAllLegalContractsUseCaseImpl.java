@@ -10,6 +10,7 @@ import org.hyperledger.fabric.client.GatewayException;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -25,6 +26,11 @@ public class GetAllLegalContractsUseCaseImpl implements GetAllLegalContractsUseC
     @Override
     public List<LegalContract> getAllLegalContracts() throws GatewayException, IOException {
         byte[] result = contract.evaluateTransaction("GetAllAssets");
+
+        if (result.length == 0) {
+            return new ArrayList<>();
+        }
+
         return objectMapper.readValue(result, new TypeReference<>() {
         });
     }

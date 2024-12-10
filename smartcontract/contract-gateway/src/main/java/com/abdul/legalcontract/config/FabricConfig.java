@@ -8,6 +8,7 @@ import io.grpc.TlsChannelCredentials;
 import org.hyperledger.fabric.client.Contract;
 import org.hyperledger.fabric.client.Gateway;
 import org.hyperledger.fabric.client.Hash;
+import org.hyperledger.fabric.client.Network;
 import org.hyperledger.fabric.client.identity.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -41,8 +42,10 @@ public class FabricConfig {
 
             CRYPTO_PATH.resolve(Paths.get("peers/peer0.org1.example.com/tls/ca.crt"));
 
-    public static final String CHANNEL_NAME = System.getenv().getOrDefault("CHANNEL_NAME", "olab");
-    public static final String CHAINCODE_NAME = System.getenv().getOrDefault("CHAINCODE_NAME", "legalContract");
+    public static final String CHANNEL_NAME =
+            System.getenv().getOrDefault("CHANNEL_NAME", "olab");
+    public static final String CHAINCODE_NAME =
+            System.getenv().getOrDefault("CHAINCODE_NAME", "legalContract");
 
     @Bean
     public Gson getGson() {
@@ -50,18 +53,25 @@ public class FabricConfig {
     }
 
     @Bean
-    public Contract getLegalContractBean(Gateway gateway) {
+    public Contract getLegalContractBean(Network network) {
         // Use the injected Gateway bean to get the contract
-        return gateway.getNetwork(CHANNEL_NAME).getContract(CHAINCODE_NAME);
+        return network.getContract(CHAINCODE_NAME);
     }
 
     @Bean
-    public Gateway getGateway() throws CertificateException, IOException, InvalidKeyException {
+    public Network getOlabNetwork(Gateway gateway) {
+        // Use the injected Gateway bean to get the contract
+        return gateway.getNetwork(CHANNEL_NAME);
+    }
+
+    @Bean
+    public Gateway getGateway(ManagedChannel managedChannel)
+            throws CertificateException, IOException, InvalidKeyException {
         Gateway.Builder builder = Gateway.newInstance()
                 .identity(newIdentity())
                 .signer(newSigner())
                 .hash(Hash.SHA256)
-                .connection(newGrpcConnection())
+                .connection(managedChannel)
                 // Default timeouts for different gRPC calls
                 .evaluateOptions(options -> options.withDeadlineAfter(5, TimeUnit.SECONDS))
                 .endorseOptions(options -> options.withDeadlineAfter(15, TimeUnit.SECONDS))
@@ -70,6 +80,7 @@ public class FabricConfig {
         return builder.connect();
     }
 
+    @Bean
     public ManagedChannel newGrpcConnection() throws IOException {
         var credentials = TlsChannelCredentials.newBuilder()
                 .trustManager(TLS_CERT_PATH.toFile())
