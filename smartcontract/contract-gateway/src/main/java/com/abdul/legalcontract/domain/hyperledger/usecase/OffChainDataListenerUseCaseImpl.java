@@ -1,6 +1,5 @@
 package com.abdul.legalcontract.domain.hyperledger.usecase;
 
-import com.abdul.legalcontract.config.Utils;
 import com.abdul.legalcontract.domain.hyperledger.port.in.BlockParserUseCase;
 import com.abdul.legalcontract.domain.hyperledger.port.in.OffChainDataListenerUseCase;
 import com.abdul.legalcontract.domain.hyperledger.port.in.ProcessBlockUseCase;
@@ -12,16 +11,11 @@ import org.hyperledger.fabric.client.Network;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class OffChainDataListenerUseCaseImpl implements OffChainDataListenerUseCase {
-    private static final Path STORE_FILE = Paths.get(Utils.getEnvOrDefault("STORE_FILE", "store.log"));
-    private static final int SIMULATED_FAILURE_COUNT = Utils.getEnvOrDefault("SIMULATED_FAILURE_COUNT", Integer::parseUnsignedInt, 0);
-
     private static final long START_BLOCK = 0L;
 
     private final Gson GSON;

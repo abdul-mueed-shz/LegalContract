@@ -6,10 +6,7 @@
 
 package com.abdul.legalcontract.domain.hyperledger.parser;
 
-import com.abdul.legalcontract.config.parser.ParsedPayload;
-import com.abdul.legalcontract.config.parser.ParsedTransaction;
-import com.abdul.legalcontract.config.parser.Transaction;
-import com.abdul.legalcontract.config.parser.Utils;
+import com.abdul.legalcontract.domain.hyperledger.utils.Utils;
 import com.google.protobuf.InvalidProtocolBufferException;
 import org.hyperledger.fabric.protos.common.BlockMetadataIndex;
 import org.hyperledger.fabric.protos.common.Envelope;

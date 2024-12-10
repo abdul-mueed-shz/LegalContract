@@ -4,8 +4,14 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package com.abdul.legalcontract.config.parser;
+package com.abdul.legalcontract.domain.hyperledger.usecase;
 
+import com.abdul.legalcontract.domain.hyperledger.parser.NamespaceReadWriteSet;
+import com.abdul.legalcontract.domain.hyperledger.parser.ParsedPayload;
+import com.abdul.legalcontract.domain.hyperledger.parser.ParsedReadWriteSet;
+import com.abdul.legalcontract.domain.hyperledger.parser.ParsedTransactionAction;
+import com.abdul.legalcontract.domain.hyperledger.port.in.ParseTransactionUseCase;
+import com.abdul.legalcontract.domain.hyperledger.utils.Utils;
 import com.google.protobuf.InvalidProtocolBufferException;
 import org.hyperledger.fabric.client.identity.Identity;
 import org.hyperledger.fabric.protos.common.ChannelHeader;
@@ -18,11 +24,11 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
-public final class ParsedParseTransactionUseCase implements ParseTransactionUseCase {
+public final class ParseTransactionUseCaseImpl implements ParseTransactionUseCase {
     private final ParsedPayload payload;
     private final AtomicReference<List<NamespaceReadWriteSet>> cachedNamespaceReadWriteSets = new AtomicReference<>();
 
-    public ParsedParseTransactionUseCase(final ParsedPayload payload) {
+    public ParseTransactionUseCaseImpl(final ParsedPayload payload) {
         this.payload = payload;
     }
 

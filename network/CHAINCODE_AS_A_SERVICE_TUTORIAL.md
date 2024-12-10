@@ -1,26 +1,42 @@
 # Running Chaincode as Service with the Test Network
 
-The chaincode-as-a-service feature is a very useful and practical way to run 'Smart Contracts'. Traditionally the Fabric Peer has taken on the role of orchestrating the complete lifecycle of the chaincode. It required access to the Docker Daemon to create images, and start containers. Java, Node.js and Go chaincode frameworks were explicitly known to the peer including how they should be built and started.
+The chaincode-as-a-service feature is a very useful and practical way to run 'Smart Contracts'. Traditionally the Fabric
+Peer has taken on the role of orchestrating the complete lifecycle of the chaincode. It required access to the Docker
+Daemon to create images, and start containers. Java, Node.js and Go chaincode frameworks were explicitly known to the
+peer including how they should be built and started.
 
-As a result this makes it very hard to deploy into Kubernetes (K8S) style environments, or to run in any form of debug mode. Additionally, the code is being rebuilt by the peer therefore there is some degree of uncertainty about what dependencies have been pulled in.
+As a result this makes it very hard to deploy into Kubernetes (K8S) style environments, or to run in any form of debug
+mode. Additionally, the code is being rebuilt by the peer therefore there is some degree of uncertainty about what
+dependencies have been pulled in.
 
-Chaincode-as-service requires you to orchestrate the build and deployment phase yourself. Whilst this is an additional step, it gives control back. The Peer still requires a 'chaincode package' to be installed. In this case this doesn't contain code, but the information about where the chaincode is hosted. (Hostname,Port,TLS config etc)
+Chaincode-as-service requires you to orchestrate the build and deployment phase yourself. Whilst this is an additional
+step, it gives control back. The Peer still requires a 'chaincode package' to be installed. In this case this doesn't
+contain code, but the information about where the chaincode is hosted. (Hostname,Port,TLS config etc)
 
 ## Fabric v2.4.1 Improvements
 
-We need to use the latest 2.4.1 release as this contains some improvements to make this process easier. The core functionality is available in earlier releases but requires more configuration.
+We need to use the latest 2.4.1 release as this contains some improvements to make this process easier. The core
+functionality is available in earlier releases but requires more configuration.
 
-- The docker image for the peer contains a builder for chaincode-as-a-service preconfigured. This is named 'ccaasbuilder'. This removes the need to build your own external builder and repackage and configure the peer
-- The `ccaasbuilder` applications are included in the binary tgz archive download for use in other circumstances. The `sampleconfig/core.yaml` is updated as well to refer to 'ccaasbuilder'
-- The 2.4.1 Java Chaincode release has been updated to remove the need to write a custom bootstrap main class, similar  to the Node.js Chaincode. It is intended that this will be added to the go chaincode as well.
+- The docker image for the peer contains a builder for chaincode-as-a-service preconfigured. This is named '
+  ccaasbuilder'. This removes the need to build your own external builder and repackage and configure the peer
+- The `ccaasbuilder` applications are included in the binary tgz archive download for use in other circumstances. The
+  `sampleconfig/core.yaml` is updated as well to refer to 'ccaasbuilder'
+- The 2.4.1 Java Chaincode release has been updated to remove the need to write a custom bootstrap main class, similar
+  to the Node.js Chaincode. It is intended that this will be added to the go chaincode as well.
 
 ## End-to-end with the the test-network
 
-The `test-network` and some of the chaincodes have been updated to support running chaincode-as-a-service. The commands below assume that you've got the latest fabric-samples cloned, along with the latest Fabric docker images.
+The `test-network` and some of the chaincodes have been updated to support running chaincode-as-a-service. The commands
+below assume that you've got the latest fabric-samples cloned, along with the latest Fabric docker images.
 
-It's useful to have two terminal windows open, one for starting the Fabric Network, and a second for monitoring all the docker containers.
+It's useful to have two terminal windows open, one for starting the Fabric Network, and a second for monitoring all the
+docker containers.
 
-In your 'monitoring' window, run this to watch all activity from the all the docker containers on the `fabric_test` network; this will monitor all the docker containers that are added to the `fabric-test` network. The network is usually created by the `./network.sh up` command, so remember to delay running this until at least the network is created. It is possible to precreate the network with `docker network create fabric-test` if you wish.
+In your 'monitoring' window, run this to watch all activity from the all the docker containers on the `fabric_test`
+network; this will monitor all the docker containers that are added to the `fabric-test` network. The network is usually
+created by the `./network.sh up` command, so remember to delay running this until at least the network is created. It is
+possible to precreate the network with `docker network create fabric-test` if you wish.
 
 ```bash
 # from the fabric-samples repo
@@ -34,13 +50,17 @@ cd test-network
 ./network.sh up createChannel -ca
 ```
 
-You can run other variants of this command, eg to use CouchDB or CAs, without affecting the '-as-a-service' feature. The three keys steps are:
+You can run other variants of this command, eg to use CouchDB or CAs, without affecting the '-as-a-service' feature. The
+three keys steps are:
 
-- Build a docker image of the contract. Both `/asset-transfer-basic/chaincode-typescript` and `/asset-transfer-basic/chaincode-java` have been updated with Dockerfiles
-- Install, Approve, and Commit a chaincode definition. This is unchanged, but the chaincode package contains connection information (hostname,port,tls certificates etc.), not code
+- Build a docker image of the contract. Both `/asset-transfer-basic/chaincode-typescript` and
+  `/asset-transfer-basic/chaincode-java` have been updated with Dockerfiles
+- Install, Approve, and Commit a chaincode definition. This is unchanged, but the chaincode package contains connection
+  information (hostname,port,tls certificates etc.), not code
 - Start the docker container(s) containing the contract
 
-Note that the order listed isn't mandatory. The key thing is that the containers are running before the first transaction is set by the peer. Remember that this could be on the `commit` if the `initRequired` flag is set.
+Note that the order listed isn't mandatory. The key thing is that the containers are running before the first
+transaction is set by the peer. Remember that this could be on the `commit` if the `initRequired` flag is set.
 
 This sequence can be run as follows
 
@@ -48,11 +68,16 @@ This sequence can be run as follows
 ./network.sh deployCCAAS  -ccn basicts -ccp ../asset-transfer-basic/chaincode-typescript
 ```
 
-This is very similar to the `deployCC` command, it needs the name, and path. But also needs to have the port the chaincode container is going to use. As each container is on the `fabric-test` network, you might wish to alter this so there are no collisions with other chaincode containers.
+This is very similar to the `deployCC` command, it needs the name, and path. But also needs to have the port the
+chaincode container is going to use. As each container is on the `fabric-test` network, you might wish to alter this so
+there are no collisions with other chaincode containers.
 
-You should be able to see the contract starting in the monitoring window. There will be two containers running, one for org1 and one for org2. The container names contain the organization/peer and the name of the chaincode.
+You should be able to see the contract starting in the monitoring window. There will be two containers running, one for
+org1 and one for org2. The container names contain the organization/peer and the name of the chaincode.
 
-To test things are working you can invoke the 'Contract Metadata' function. For information on how to work as different organizations see [Interacting with the network](https://hyperledger-fabric.readthedocs.io/en/latest/test_network.html#interacting-with-the-network)
+To test things are working you can invoke the 'Contract Metadata' function. For information on how to work as different
+organizations
+see [Interacting with the network](https://hyperledger-fabric.readthedocs.io/en/latest/test_network.html#interacting-with-the-network)
 
 ```bash
 # Environment variables for Org1
@@ -69,7 +94,8 @@ export FABRIC_CFG_PATH=${PWD}/../config
 peer chaincode query -C mychannel -n basicts -c '{"Args":["org.hyperledger.fabric:GetMetadata"]}' | jq
 ```
 
-If you don't have `jq` installed omit `| jq`.  The metadata shows the details of the deployed contract and is JSON, so jq makes it easier to read.  You can repeat the above commands for org2 to confirm that is working.
+If you don't have `jq` installed omit `| jq`. The metadata shows the details of the deployed contract and is JSON, so jq
+makes it easier to read. You can repeat the above commands for org2 to confirm that is working.
 
 To run the Java example, change the `deployCCAAS` command as follows. This will create two new containers.
 
@@ -77,7 +103,8 @@ To run the Java example, change the `deployCCAAS` command as follows. This will 
 ./network.sh deployCCAAS  -ccn basicj -ccp ../asset-transfer-basic/chaincode-java
 ```
 
-Note that all the asset-transfer-basic application samples use 'basic' as the chaincode name and need to be adjusted to use the name 'basicts' or 'basicj' accordingly, or you need to use the name 'basic' in the commands above.
+Note that all the asset-transfer-basic application samples use 'basic' as the chaincode name and need to be adjusted to
+use the name 'basicts' or 'basicj' accordingly, or you need to use the name 'basic' in the commands above.
 
 ### Troubleshooting
 
@@ -89,14 +116,18 @@ If the JSON structure passed in is badly formatted JSON this error will be in th
 
 ## How to configure each language
 
-Each language can work in the '-as-a-service' mode. Note that the approaches here are based on the very latest libraries.
-When starting the image you can also specify any of the TLS options or additional logging options for the respective chaincode libraries.
+Each language can work in the '-as-a-service' mode. Note that the approaches here are based on the very latest
+libraries.
+When starting the image you can also specify any of the TLS options or additional logging options for the respective
+chaincode libraries.
 
 ### Java
 
-With the v2.4.1 Java Chaincode libraries, there are no code changes to make or build changes. The '-as-a-service' mode will be used if the environment variable `CHAINCODE_SERVER_ADDRESS` is set.
+With the v2.4.1 Java Chaincode libraries, there are no code changes to make or build changes. The '-as-a-service' mode
+will be used if the environment variable `CHAINCODE_SERVER_ADDRESS` is set.
 
-A sample docker run command could be as follows. The two key variables that are needed are the `CHAINCODE_SERVER_ADDRESS` and `CORE_CHAICODE_ID_NAME`
+A sample docker run command could be as follows. The two key variables that are needed are the
+`CHAINCODE_SERVER_ADDRESS` and `CORE_CHAICODE_ID_NAME`
 
 ```bash
     docker run --rm -d --name peer0org1_assettx_ccaas  \
@@ -108,13 +139,17 @@ A sample docker run command could be as follows. The two key variables that are 
 
 ### Node.js
 
-For Node.js (JavaScript or TypeScript) chaincode, typically the `package.json` has `fabric-chaincode-node start` as the main start command. To run in the '-as-a-service' mode change this to `fabric-chaincode-node server --chaincode-address=$CHAINCODE_SERVER_ADDRESS --chaincode-id=$CHAINCODE_ID`
+For Node.js (JavaScript or TypeScript) chaincode, typically the `package.json` has `fabric-chaincode-node start` as the
+main start command. To run in the '-as-a-service' mode change this to
+`fabric-chaincode-node server --chaincode-address=$CHAINCODE_SERVER_ADDRESS --chaincode-id=$CHAINCODE_ID`
 
 ## Debugging the Chaincode
 
-Running in the '-as-a-service' mode offers options, similar to how the Fabric 'dev' mode works on debugging code. The restrictions of the 'dev' mode don't apply.
+Running in the '-as-a-service' mode offers options, similar to how the Fabric 'dev' mode works on debugging code. The
+restrictions of the 'dev' mode don't apply.
 
-There is an option `-ccaasdocker false` that can be provided on the `deployCCAAS` command. This will _not_ build the docker image or start a docker container. It does output the commands it would have run.
+There is an option `-ccaasdocker false` that can be provided on the `deployCCAAS` command. This will _not_ build the
+docker image or start a docker container. It does output the commands it would have run.
 
 Run this command, and you'll see similar output
 
@@ -132,7 +167,9 @@ Depending on your directory, and what you need to debug you might need to adjust
 
 ### Building the docker image
 
-The first thing needed is to build the docker image. Remember that so long as the peer can connect to the hostname:port given in the `connection.json` the actual packaging of the chaincode is not important to the peer. You are at liberty to adjust the dockerfiles given hgere.
+The first thing needed is to build the docker image. Remember that so long as the peer can connect to the hostname:port
+given in the `connection.json` the actual packaging of the chaincode is not important to the peer. You are at liberty to
+adjust the dockerfiles given hgere.
 
 To manually build the docker image for the `asset-transfer-basic/chaincode-java`
 
@@ -160,28 +197,45 @@ b1898535e25b4dfeeb3f8244c9f07d91a06aec03e2d19174c45e4f  basicj_ccaas_image:lates
 For all languages please note:
 
 - the name of the container needs to match what the peer has in the `connection.json`
-- the peer is connecting to the chaincode container via the docker network. Therefore port 9999 does not need to be forwarded to the host
-- If you are going to single step in a debugger, then you are likely to hit the Fabric transaction timeout value. By default this is 30 seconds, meaning the chaincode has to complete transactions in 30 seconds or less. In the `test-network/docker/docker-composer-test-net.yml` add `CORE_CHAINCODE_EXECUTETIMEOUT=300s` to the environment options of each peer.
-- In the command above, the `-d` option has been removed from the command the test-network would have used, and has been replaced with `-it`. This means that docker container will not run in detached mode, and will run in the foreground.
+- the peer is connecting to the chaincode container via the docker network. Therefore port 9999 does not need to be
+  forwarded to the host
+- If you are going to single step in a debugger, then you are likely to hit the Fabric transaction timeout value. By
+  default this is 30 seconds, meaning the chaincode has to complete transactions in 30 seconds or less. In the
+  `test-network/docker/docker-composer-test-net.yml` add `CORE_CHAINCODE_EXECUTETIMEOUT=300s` to the environment options
+  of each peer.
+- In the command above, the `-d` option has been removed from the command the test-network would have used, and has been
+  replaced with `-it`. This means that docker container will not run in detached mode, and will run in the foreground.
 
 For Node.js please note:
 
 - Port 9229 is forwarded however - this is the debug port used by Node.js
-- `-e DEBUG=true` will trigger the node runtime to be started in debug mode. This is encoded in the `docker/docker-entrypoint.sh` script - this is an example and you may wish to remove this in production images for security
-- If you are using typescript, ensure that the typescript has been compiled with sourcemaps, otherwise a debugger will struggle matching up the source code.
+- `-e DEBUG=true` will trigger the node runtime to be started in debug mode. This is encoded in the
+  `docker/docker-entrypoint.sh` script - this is an example and you may wish to remove this in production images for
+  security
+- If you are using typescript, ensure that the typescript has been compiled with sourcemaps, otherwise a debugger will
+  struggle matching up the source code.
 
 For Java please note:
 
 - Port 800 is forwarded, the debug port for the JVM
-- `-e DEBUG=true` will trigger the node runtime to be started in debug mode. This is encoded in the `docker/docker-entrypoint.sh` script - this is an example and you may wish to remove this in production images for security
-- In the java command with the option to start the debugger is `java -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=0.0.0.0:8000 -jar /chaincode.jar`   Note the `0.0.0.0` as the debug port needs to be bound to all network adapters so the debugger can be attached from outside the container
+- `-e DEBUG=true` will trigger the node runtime to be started in debug mode. This is encoded in the
+  `docker/docker-entrypoint.sh` script - this is an example and you may wish to remove this in production images for
+  security
+- In the java command with the option to start the debugger is
+  `java -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=0.0.0.0:8000 -jar /chaincode.jar`   Note the
+  `0.0.0.0` as the debug port needs to be bound to all network adapters so the debugger can be attached from outside the
+  container
 
 ## Running with multiple peers
 
-In the traditional approach, each peer that the chaincode is approved on will have a container running the chaincode. With the '-as-a-service' approach we need to achieve the same architecture.
+In the traditional approach, each peer that the chaincode is approved on will have a container running the chaincode.
+With the '-as-a-service' approach we need to achieve the same architecture.
 
-As the `connection.json` contains the address of the running chaincode container, it can be updated to ensure that each peer connects to a different container. However the as the `connection.json` in the chaincode package, Fabric mandates that the package id is consistent amongst all peers in an organization. To achieve that
-the the external builder supports a template capability. The context from this template is taken from an environment variable set on each Peer. `CHAINCODE_AS_A_SERVICE_BUILDER_CONFIG`
+As the `connection.json` contains the address of the running chaincode container, it can be updated to ensure that each
+peer connects to a different container. However the as the `connection.json` in the chaincode package, Fabric mandates
+that the package id is consistent amongst all peers in an organization. To achieve that
+the the external builder supports a template capability. The context from this template is taken from an environment
+variable set on each Peer. `CHAINCODE_AS_A_SERVICE_BUILDER_CONFIG`
 
 We can define the address to be a template in the `connection.json`
 
@@ -201,6 +255,7 @@ CHAINCODE_AS_A_SERVICE_BUILDER_CONFIG="{\"peername\":\"org1peer1\"}"
 
 The external builder will then resolve this address to be `org1peer1_assettransfer_ccaas:9999` for the peer to use.
 
-Each peer can have their own separate configuration, and therefore different addresses. The JSON string that is set can have any structure, so long as the templates (in golang template syntax) match.
+Each peer can have their own separate configuration, and therefore different addresses. The JSON string that is set can
+have any structure, so long as the templates (in golang template syntax) match.
 
 Any value in the `connection.json` can be templated - but only the values and not the keys.

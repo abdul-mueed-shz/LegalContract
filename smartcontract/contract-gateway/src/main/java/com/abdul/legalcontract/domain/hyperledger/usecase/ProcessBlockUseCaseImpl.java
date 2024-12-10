@@ -5,8 +5,8 @@ package com.abdul.legalcontract.domain.hyperledger.usecase;
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import com.abdul.legalcontract.config.parser.Transaction;
 import com.abdul.legalcontract.domain.hyperledger.parser.Block;
+import com.abdul.legalcontract.domain.hyperledger.parser.Transaction;
 import com.abdul.legalcontract.domain.hyperledger.port.in.ProcessBlockUseCase;
 import com.google.protobuf.InvalidProtocolBufferException;
 import lombok.RequiredArgsConstructor;

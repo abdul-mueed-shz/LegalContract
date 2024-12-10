@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package com.abdul.legalcontract.config.parser;
+package com.abdul.legalcontract.domain.hyperledger.parser;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import org.hyperledger.fabric.protos.ledger.rwset.NsReadWriteSet;

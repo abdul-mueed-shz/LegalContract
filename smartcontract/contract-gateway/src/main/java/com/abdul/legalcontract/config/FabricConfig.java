@@ -48,8 +48,7 @@ public class FabricConfig {
     public static final String CHAINCODE_NAME =
             System.getenv().getOrDefault("CHAINCODE_NAME", "legalContract");
 
-    private static final Path CHECKPOINT_FILE =
-            Paths.get(Utils.getEnvOrDefault("CHECKPOINT_FILE", "checkpoint.json"));
+    private static final Path CHECKPOINT_FILE = Paths.get("checkpoint.json");
 
     @Bean
     Checkpointer getFileCheckPointer() throws IOException {

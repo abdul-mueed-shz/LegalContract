@@ -4,8 +4,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package com.abdul.legalcontract.config.parser;
+package com.abdul.legalcontract.domain.hyperledger.parser;
 
+import com.abdul.legalcontract.domain.hyperledger.utils.Utils;
 import com.google.protobuf.InvalidProtocolBufferException;
 import org.hyperledger.fabric.protos.ledger.rwset.NsReadWriteSet;
 import org.hyperledger.fabric.protos.ledger.rwset.TxReadWriteSet;
@@ -19,7 +20,7 @@ public class ParsedReadWriteSet implements NamespaceReadWriteSet {
     private final NsReadWriteSet readWriteSet;
     private final AtomicReference<KVRWSet> cachedReadWriteSet = new AtomicReference<>();
 
-    static List<ParsedReadWriteSet> fromTxReadWriteSet(final TxReadWriteSet readWriteSet) {
+    public static List<ParsedReadWriteSet> fromTxReadWriteSet(final TxReadWriteSet readWriteSet) {
         var dataModel = readWriteSet.getDataModel();
         if (dataModel != TxReadWriteSet.DataModel.KV) {
             throw new IllegalArgumentException("Unexpected read/write set data model: " + dataModel.name());
