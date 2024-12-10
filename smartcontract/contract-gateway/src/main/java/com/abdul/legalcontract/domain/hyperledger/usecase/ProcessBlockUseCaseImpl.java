@@ -37,10 +37,7 @@ public final class ProcessBlockUseCaseImpl implements ProcessBlockUseCase {
 
             for (Transaction transaction : validTransactions) {
                 processTransactionUseCase.process(blockNumber, transaction);
-                String transactionId = transaction.getChannelHeader().getTxId();
-                System.out.println("Process TransactionId " + transactionId);
-                System.out.println("Process BlockNumber " + blockNumber);
-                checkpointer.checkpointTransaction(blockNumber, transactionId);
+                checkpointer.checkpointTransaction(blockNumber, transaction.getChannelHeader().getTxId());
             }
             checkpointer.checkpointBlock(blockNumber);
         } catch (IOException e) {

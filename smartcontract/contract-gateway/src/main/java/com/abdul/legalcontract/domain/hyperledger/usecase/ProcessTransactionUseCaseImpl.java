@@ -1,11 +1,17 @@
 package com.abdul.legalcontract.domain.hyperledger.usecase;
 
+import com.abdul.legalcontract.domain.hyperledger.model.TransactionInfo;
+import com.abdul.legalcontract.domain.hyperledger.model.Write;
+import com.abdul.legalcontract.domain.hyperledger.parser.NamespaceReadWriteSet;
 import com.abdul.legalcontract.domain.hyperledger.parser.Transaction;
 import com.abdul.legalcontract.domain.hyperledger.port.in.ProcessTransactionUseCase;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Service
 public class ProcessTransactionUseCaseImpl implements ProcessTransactionUseCase {
@@ -23,15 +29,24 @@ public class ProcessTransactionUseCaseImpl implements ProcessTransactionUseCase 
         return SYSTEM_CHAINCODE_NAMES.contains(chaincodeName);
     }
 
-    public void process(long blockNumber, Transaction transaction) throws IOException {
-        var channelName = transaction.getChannelHeader().getChannelId();
-        for (var readWriteSet : transaction.getNamespaceReadWriteSets()) {
-            var namespace = readWriteSet.getNamespace();
-            if (isSystemChaincode(namespace)) {
+    @Override
+    public List<TransactionInfo> process(long blockNumber, Transaction transaction) throws IOException {
+        String transactionId = transaction.getChannelHeader().getTxId();
+        String channelName = transaction.getChannelHeader().getChannelId();
+
+        AtomicReference<ArrayList<Write>> writes = new AtomicReference<>(new ArrayList<Write>());
+        for (NamespaceReadWriteSet readWriteSet : transaction.getNamespaceReadWriteSets()) {
+            String contractName = readWriteSet.getNamespace();
+            if (isSystemChaincode(contractName)) {
                 continue;
             }
-            System.out.println("Process channelName " + channelName);
-            System.out.println("Process namespace " + namespace);
+            readWriteSet.getReadWriteSet().getWritesList().stream()
+                    .map(write -> new Write(channelName, contractName, write))
+                    .forEach(writes.get()::add);
         }
+        System.out.println("TransactionId" + transactionId);
+        System.out.println("ChannelName" + channelName);
+        System.out.println("Writes" + writes.get());
+        return new ArrayList<>();
     }
 }
