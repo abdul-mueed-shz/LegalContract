@@ -8,6 +8,7 @@ package com.abdul.legalcontract.domain.hyperledger.usecase;
 import com.abdul.legalcontract.domain.hyperledger.parser.Block;
 import com.abdul.legalcontract.domain.hyperledger.parser.Transaction;
 import com.abdul.legalcontract.domain.hyperledger.port.in.ProcessBlockUseCase;
+import com.abdul.legalcontract.domain.hyperledger.port.in.ProcessTransactionUseCase;
 import com.google.protobuf.InvalidProtocolBufferException;
 import lombok.RequiredArgsConstructor;
 import org.hyperledger.fabric.client.Checkpointer;
@@ -21,7 +22,9 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public final class ProcessBlockUseCaseImpl implements ProcessBlockUseCase {
+
     private final Checkpointer checkpointer;
+    private final ProcessTransactionUseCase processTransactionUseCase;
 
     public void process(Block block) {
         long blockNumber = block.getNumber();
@@ -33,9 +36,10 @@ public final class ProcessBlockUseCaseImpl implements ProcessBlockUseCase {
                     .toList();
 
             for (Transaction transaction : validTransactions) {
-                // new TransactionProcessor(transaction, blockNumber, store).process();
+                processTransactionUseCase.process(blockNumber, transaction);
                 String transactionId = transaction.getChannelHeader().getTxId();
-                System.out.println(transactionId);
+                System.out.println("Process TransactionId " + transactionId);
+                System.out.println("Process BlockNumber " + blockNumber);
                 checkpointer.checkpointTransaction(blockNumber, transactionId);
             }
             checkpointer.checkpointBlock(blockNumber);
