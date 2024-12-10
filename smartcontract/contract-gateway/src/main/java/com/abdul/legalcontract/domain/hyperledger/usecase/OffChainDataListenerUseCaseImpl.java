@@ -1,7 +1,6 @@
 package com.abdul.legalcontract.domain.hyperledger.usecase;
 
 import com.abdul.legalcontract.config.Utils;
-import com.abdul.legalcontract.domain.hyperledger.model.Write;
 import com.abdul.legalcontract.domain.hyperledger.port.in.BlockParserUseCase;
 import com.abdul.legalcontract.domain.hyperledger.port.in.OffChainDataListenerUseCase;
 import com.abdul.legalcontract.domain.hyperledger.port.in.ProcessBlockUseCase;
@@ -13,12 +12,8 @@ import org.hyperledger.fabric.client.Network;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.io.StringWriter;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
-import java.util.List;
 
 @Service
 @Slf4j
@@ -50,20 +45,5 @@ public class OffChainDataListenerUseCaseImpl implements OffChainDataListenerUseC
             var block = blockParserUseCase.parseBlock(blockProto);
             processBlockUseCase.process(block);
         });
-    }
-
-    private void applyWritesToOffChainStore(
-            final long blockNumber,
-            final String transactionId,
-            final List<Write> writes) throws IOException {
-
-        try (var writer = new StringWriter()) {
-            for (var write : writes) {
-                GSON.toJson(write, writer);
-                writer.append('\n');
-            }
-
-            Files.writeString(STORE_FILE, writer.toString(), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
-        }
     }
 }
