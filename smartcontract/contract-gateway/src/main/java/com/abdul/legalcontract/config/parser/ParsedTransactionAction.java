@@ -15,10 +15,10 @@ import org.hyperledger.fabric.protos.peer.TransactionAction;
 
 import java.util.List;
 
-final class ParsedTransactionAction {
+public final class ParsedTransactionAction {
     private final TransactionAction transactionAction;
 
-    ParsedTransactionAction(final TransactionAction transactionAction) {
+    public ParsedTransactionAction(final TransactionAction transactionAction) {
         this.transactionAction = transactionAction;
     }
 

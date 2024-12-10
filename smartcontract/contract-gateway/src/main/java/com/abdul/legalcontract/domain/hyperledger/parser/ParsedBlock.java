@@ -4,14 +4,17 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package com.abdul.legalcontract.config.parser;
+package com.abdul.legalcontract.domain.hyperledger.parser;
 
+import com.abdul.legalcontract.config.parser.ParsedPayload;
+import com.abdul.legalcontract.config.parser.ParsedTransaction;
+import com.abdul.legalcontract.config.parser.Transaction;
+import com.abdul.legalcontract.config.parser.Utils;
 import com.google.protobuf.InvalidProtocolBufferException;
 import org.hyperledger.fabric.protos.common.BlockMetadataIndex;
 import org.hyperledger.fabric.protos.common.Envelope;
 import org.hyperledger.fabric.protos.common.Payload;
 import org.hyperledger.fabric.protos.peer.TxValidationCode;
-import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,12 +22,12 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-@Service
-class ParsedBlock implements Block {
+
+public class ParsedBlock implements Block {
     private final org.hyperledger.fabric.protos.common.Block block;
     private final AtomicReference<List<Transaction>> cachedTransactions = new AtomicReference<>();
 
-    ParsedBlock(final org.hyperledger.fabric.protos.common.Block block) {
+    public ParsedBlock(final org.hyperledger.fabric.protos.common.Block block) {
         this.block = block;
     }
 
@@ -56,7 +59,7 @@ class ParsedBlock implements Block {
         return block;
     }
 
-    private List<Payload> getPayloads() throws InvalidProtocolBufferException {
+    public List<Payload> getPayloads() throws InvalidProtocolBufferException {
         var payloads = new ArrayList<Payload>();
 
         for (var envelopeBytes : block.getData().getDataList()) {
@@ -68,7 +71,7 @@ class ParsedBlock implements Block {
         return payloads;
     }
 
-    private List<TxValidationCode> getTransactionValidationCodes() {
+    public List<TxValidationCode> getTransactionValidationCodes() {
         var transactionsFilter = block.getMetadata().getMetadataList().get(BlockMetadataIndex.TRANSACTIONS_FILTER.getNumber());
         return StreamSupport.stream(transactionsFilter.spliterator(), false)
                 .map(Byte::intValue)

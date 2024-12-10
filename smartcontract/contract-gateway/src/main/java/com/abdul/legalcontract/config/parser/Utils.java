@@ -13,7 +13,7 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
-final class Utils {
+public final class Utils {
     public interface ProtoCall<T> extends Callable<T> {
         @Override
         T call() throws InvalidProtocolBufferException;

@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
-class ParsedReadWriteSet implements NamespaceReadWriteSet {
+public class ParsedReadWriteSet implements NamespaceReadWriteSet {
     private final NsReadWriteSet readWriteSet;
     private final AtomicReference<KVRWSet> cachedReadWriteSet = new AtomicReference<>();
 

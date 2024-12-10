@@ -15,13 +15,13 @@ import org.hyperledger.fabric.protos.peer.TxValidationCode;
 
 import java.util.concurrent.atomic.AtomicReference;
 
-class ParsedPayload {
+public class ParsedPayload {
     private final Payload payload;
     private final TxValidationCode statusCode;
     private final AtomicReference<ChannelHeader> cachedChannelHeader = new AtomicReference<>();
     private final AtomicReference<SignatureHeader> cachedSignatureHeader = new AtomicReference<>();
 
-    ParsedPayload(final Payload payload, final TxValidationCode statusCode) {
+    public ParsedPayload(final Payload payload, final TxValidationCode statusCode) {
         this.payload = payload;
         this.statusCode = statusCode;
     }

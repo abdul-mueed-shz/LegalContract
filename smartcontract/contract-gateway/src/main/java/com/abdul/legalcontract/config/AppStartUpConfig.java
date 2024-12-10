@@ -1,6 +1,6 @@
 package com.abdul.legalcontract.config;
 
-import com.abdul.legalcontract.domain.hyperledger.port.in.StartOffChainDataListenerUseCase;
+import com.abdul.legalcontract.adapter.in.hyperledger.listener.OffChainDataListener;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
@@ -9,10 +9,10 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @RequiredArgsConstructor
 public class AppStartUpConfig {
-    private final StartOffChainDataListenerUseCase startOffChainDataListenerUseCase;
+    private final OffChainDataListener offChainDataListener;
 
     @Bean
     public ApplicationRunner startupRunner() {
-        return args -> startOffChainDataListenerUseCase.startListening();
+        return args -> offChainDataListener.startListening();
     }
 }

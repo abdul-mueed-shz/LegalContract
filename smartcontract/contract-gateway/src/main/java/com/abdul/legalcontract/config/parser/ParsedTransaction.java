@@ -18,11 +18,11 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
-final class ParsedTransaction implements Transaction {
+public final class ParsedTransaction implements Transaction {
     private final ParsedPayload payload;
     private final AtomicReference<List<NamespaceReadWriteSet>> cachedNamespaceReadWriteSets = new AtomicReference<>();
 
-    ParsedTransaction(final ParsedPayload payload) {
+    public ParsedTransaction(final ParsedPayload payload) {
         this.payload = payload;
     }
 

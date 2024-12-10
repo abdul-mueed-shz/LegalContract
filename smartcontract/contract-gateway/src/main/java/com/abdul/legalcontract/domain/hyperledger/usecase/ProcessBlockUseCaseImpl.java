@@ -1,52 +1,51 @@
-package com.abdul.legalcontract.config;
+package com.abdul.legalcontract.domain.hyperledger.usecase;
 /*
  * Copyright IBM Corp. All Rights Reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import com.abdul.legalcontract.config.parser.Block;
 import com.abdul.legalcontract.config.parser.Transaction;
+import com.abdul.legalcontract.domain.hyperledger.parser.Block;
+import com.abdul.legalcontract.domain.hyperledger.port.in.ProcessBlockUseCase;
 import com.google.protobuf.InvalidProtocolBufferException;
+import lombok.RequiredArgsConstructor;
 import org.hyperledger.fabric.client.Checkpointer;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class BlockProcessor {
-    private final Block block;
+@Service
+@RequiredArgsConstructor
+public final class ProcessBlockUseCaseImpl implements ProcessBlockUseCase {
     private final Checkpointer checkpointer;
 
-    public BlockProcessor(final Block block, final Checkpointer checkpointer) {
-        this.block = block;
-        this.checkpointer = checkpointer;
-    }
-
-    public void process() {
-        var blockNumber = block.getNumber();
+    public void process(Block block) {
+        long blockNumber = block.getNumber();
         System.out.println("\nReceived block " + Long.toUnsignedString(blockNumber));
 
         try {
-            var validTransactions = getNewTransactions().stream()
+            List<Transaction> validTransactions = getNewTransactions(block, checkpointer).stream()
                     .filter(Transaction::isValid)
                     .toList();
 
-            for (var transaction : validTransactions) {
+            for (Transaction transaction : validTransactions) {
                 // new TransactionProcessor(transaction, blockNumber, store).process();
-                var transactionId = transaction.getChannelHeader().getTxId();
+                String transactionId = transaction.getChannelHeader().getTxId();
                 System.out.println(transactionId);
                 checkpointer.checkpointTransaction(blockNumber, transactionId);
             }
-
             checkpointer.checkpointBlock(blockNumber);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
-    private List<Transaction> getNewTransactions() throws InvalidProtocolBufferException {
+    private List<Transaction> getNewTransactions(Block block, Checkpointer checkpointer)
+            throws InvalidProtocolBufferException {
         var transactions = block.getTransactions();
 
         var lastTransactionId = checkpointer.getTransactionId();
@@ -54,7 +53,6 @@ public final class BlockProcessor {
             // No previously processed transactions within this block so all are new
             return transactions;
         }
-
         var transactionIds = new ArrayList<>();
         for (var transaction : transactions) {
             transactionIds.add(transaction.getChannelHeader().getTxId());

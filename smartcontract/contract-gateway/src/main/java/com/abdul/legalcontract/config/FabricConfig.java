@@ -1,7 +1,5 @@
 package com.abdul.legalcontract.config;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import io.grpc.Grpc;
 import io.grpc.ManagedChannel;
 import io.grpc.TlsChannelCredentials;
@@ -54,13 +52,8 @@ public class FabricConfig {
             Paths.get(Utils.getEnvOrDefault("CHECKPOINT_FILE", "checkpoint.json"));
 
     @Bean
-    FileCheckpointer getFileCheckPointer() throws IOException {
+    Checkpointer getFileCheckPointer() throws IOException {
         return new FileCheckpointer(CHECKPOINT_FILE);
-    }
-
-    @Bean
-    public Gson getGson() {
-        return new GsonBuilder().setPrettyPrinting().create();
     }
 
     @Bean
