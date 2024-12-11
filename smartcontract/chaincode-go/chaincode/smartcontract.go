@@ -7,33 +7,43 @@ import (
 	"github.com/hyperledger/fabric-contract-api-go/v2/contractapi"
 )
 
-// SmartContract provides functions for managing an Asset
+// SmartContract provides functions for managing an LegalContract
 type SmartContract struct {
 	contractapi.Contract
 }
 
-// Asset describes the structure for the asset with participants, description, and title
-type Asset struct {
+// LegalContract describes the structure for the legalContract with participants, description, and title
+type LegalContract struct {
 	ID           string   `json:"ID"`
 	Title        string   `json:"Title"`
 	Description  string   `json:"Description"`
 	Participants []string `json:"Participants"`
 }
 
-// InitLedger initializes the ledger with some sample assets
+// InitLedger initializes the ledger with some sample legalContracts
 func (s *SmartContract) InitLedger(ctx contractapi.TransactionContextInterface) error {
-	assets := []Asset{
-		{ID: "asset1", Title: "Project Alpha", Description: "Initial project setup", Participants: []string{"Alice", "Bob"}},
-		{ID: "asset2", Title: "Project Beta", Description: "Development phase", Participants: []string{"Charlie", "Diana"}},
+	legalContracts := []LegalContract{
+		{
+			ID:           "asset1",
+			Title:        "Project Alpha",
+			Description:  "Initial project setup",
+			Participants: []string{"Alice", "Bob"},
+		},
+		{
+			ID:           "asset2",
+			Title:        "Project Beta",
+			Description:  "Development phase",
+			Participants: []string{"Charlie", "Diana"},
+		},
 	}
 
-	for _, asset := range assets {
-		assetJSON, err := json.Marshal(asset)
+	for _, legalContract := range legalContracts {
+		legalContractJSON, err := json.Marshal(legalContract)
 		if err != nil {
 			return err
 		}
 
-		err = ctx.GetStub().PutState(asset.ID, assetJSON)
+		err = ctx.GetStub().PutState(legalContract.ID, legalContractJSON)
 		if err != nil {
 			return fmt.Errorf("failed to put to world state. %v", err)
 		}
@@ -42,8 +52,12 @@ func (s *SmartContract) InitLedger(ctx contractapi.TransactionContextInterface) 
 	return nil
 }
 
-// CreateAsset creates a new asset in the ledger
-func (s *SmartContract) CreateAsset(ctx contractapi.TransactionContextInterface, id string, title string, description string, participantsJSON string) error {
+// CreateLegalContract creates a new legalContract in the ledger
+func (s *SmartContract) CreateLegalContract(
+	ctx contractapi.TransactionContextInterface,
+	id string,
+	title string,
+	description string, participantsJSON string) error {
 	// Parse the JSON string into a Go slice
 	var participants []string
 	err := json.Unmarshal([]byte(participantsJSON), &participants)
@@ -51,49 +65,56 @@ func (s *SmartContract) CreateAsset(ctx contractapi.TransactionContextInterface,
 		return fmt.Errorf("error parsing participants parameter: %v", err)
 	}
 
-	// Create the asset
-	asset := Asset{
+	// Create the legalContract
+	legalContract := LegalContract{
 		ID:           id,
 		Title:        title,
 		Description:  description,
 		Participants: participants,
 	}
 
-	assetJSON, err := json.Marshal(asset)
+	legalContractJSON, err := json.Marshal(legalContract)
 	if err != nil {
-		return fmt.Errorf("error marshaling asset: %v", err)
+		return fmt.Errorf("error marshaling legalContract: %v", err)
 	}
 
-	return ctx.GetStub().PutState(id, assetJSON)
+	return ctx.GetStub().PutState(id, legalContractJSON)
 }
 
-// ReadAsset retrieves an asset from the ledger by ID
-func (s *SmartContract) ReadAsset(ctx contractapi.TransactionContextInterface, id string) (*Asset, error) {
-	assetJSON, err := ctx.GetStub().GetState(id)
+// ReadLegalContract retrieves an legalContract from the ledger by ID
+func (s *SmartContract) ReadLegalContract(
+	ctx contractapi.TransactionContextInterface,
+	id string) (*LegalContract, error) {
+	legalContractJSON, err := ctx.GetStub().GetState(id)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read from world state: %v", err)
 	}
-	if assetJSON == nil {
-		return nil, fmt.Errorf("the asset %s does not exist", id)
+	if legalContractJSON == nil {
+		return nil, fmt.Errorf("the legalContract %s does not exist", id)
 	}
 
-	var asset Asset
-	err = json.Unmarshal(assetJSON, &asset)
+	var legalContract LegalContract
+	err = json.Unmarshal(legalContractJSON, &legalContract)
 	if err != nil {
 		return nil, err
 	}
 
-	return &asset, nil
+	return &legalContract, nil
 }
 
-// UpdateAsset updates an existing asset with new details
-func (s *SmartContract) UpdateAsset(ctx contractapi.TransactionContextInterface, id string, title string, description string, participantsJSON string) error {
-	exists, err := s.AssetExists(ctx, id)
+// UpdateLegalContract updates an existing legalContract with new details
+func (s *SmartContract) UpdateLegalContract(
+	ctx contractapi.TransactionContextInterface,
+	id string,
+	title string,
+	description string,
+	participantsJSON string) error {
+	exists, err := s.LegalContractExists(ctx, id)
 	if err != nil {
 		return err
 	}
 	if !exists {
-		return fmt.Errorf("the asset %s does not exist", id)
+		return fmt.Errorf("the legalContract %s does not exist", id)
 	}
 
 	// Parse the JSON string into a Go slice
@@ -103,66 +124,66 @@ func (s *SmartContract) UpdateAsset(ctx contractapi.TransactionContextInterface,
 		return fmt.Errorf("error parsing participants parameter: %v", err)
 	}
 
-	// Overwriting original asset with new details
-	asset := Asset{
+	// Overwriting original legalContract with new details
+	legalContract := LegalContract{
 		ID:           id,
 		Title:        title,
 		Description:  description,
 		Participants: participants,
 	}
-	assetJSON, err := json.Marshal(asset)
+	legalContractJSON, err := json.Marshal(legalContract)
 	if err != nil {
-		return fmt.Errorf("error marshaling asset: %v", err)
+		return fmt.Errorf("error marshaling legalContract: %v", err)
 	}
 
-	return ctx.GetStub().PutState(id, assetJSON)
+	return ctx.GetStub().PutState(id, legalContractJSON)
 }
 
-// DeleteAsset removes an asset from the ledger
-func (s *SmartContract) DeleteAsset(ctx contractapi.TransactionContextInterface, id string) error {
-	exists, err := s.AssetExists(ctx, id)
+// DeleteLegalContract removes an legalContract from the ledger
+func (s *SmartContract) DeleteLegalContract(ctx contractapi.TransactionContextInterface, id string) error {
+	exists, err := s.LegalContractExists(ctx, id)
 	if err != nil {
 		return err
 	}
 	if !exists {
-		return fmt.Errorf("the asset %s does not exist", id)
+		return fmt.Errorf("the legalContract %s does not exist", id)
 	}
 
 	return ctx.GetStub().DelState(id)
 }
 
-// AssetExists checks if an asset exists in the ledger
-func (s *SmartContract) AssetExists(ctx contractapi.TransactionContextInterface, id string) (bool, error) {
-	assetJSON, err := ctx.GetStub().GetState(id)
+// LegalContractExists checks if an legalContract exists in the ledger
+func (s *SmartContract) LegalContractExists(ctx contractapi.TransactionContextInterface, id string) (bool, error) {
+	legalContractJSON, err := ctx.GetStub().GetState(id)
 	if err != nil {
 		return false, fmt.Errorf("failed to read from world state: %v", err)
 	}
 
-	return assetJSON != nil, nil
+	return legalContractJSON != nil, nil
 }
 
-// GetAllAssets retrieves all assets from the ledger
-func (s *SmartContract) GetAllAssets(ctx contractapi.TransactionContextInterface) ([]*Asset, error) {
+// GetAllLegalContracts retrieves all legalContracts from the ledger
+func (s *SmartContract) GetAllLegalContracts(ctx contractapi.TransactionContextInterface) ([]*LegalContract, error) {
 	resultsIterator, err := ctx.GetStub().GetStateByRange("", "")
 	if err != nil {
 		return nil, err
 	}
 	defer resultsIterator.Close()
 
-	var assets []*Asset
+	var legalContracts []*LegalContract
 	for resultsIterator.HasNext() {
 		queryResponse, err := resultsIterator.Next()
 		if err != nil {
 			return nil, err
 		}
 
-		var asset Asset
-		err = json.Unmarshal(queryResponse.Value, &asset)
+		var legalContract LegalContract
+		err = json.Unmarshal(queryResponse.Value, &legalContract)
 		if err != nil {
 			return nil, err
 		}
-		assets = append(assets, &asset)
+		legalContracts = append(legalContracts, &legalContract)
 	}
 
-	return assets, nil
+	return legalContracts, nil
 }

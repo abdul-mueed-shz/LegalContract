@@ -44,7 +44,7 @@ The Fabric network is used to deploy and run this sample. Follow these steps in 
 1. Create the network and a channel (from the `network` folder).
 
    ```
-   ./network.sh up createChannel -c mychannel -ca
+   ./network.sh up createChannel -c olab -ca
    ```
 
 1. Deploy one of the smart contract implementations (from the `network` folder).
@@ -52,7 +52,7 @@ The Fabric network is used to deploy and run this sample. Follow these steps in 
     - To deploy the **Go** chaincode implementation:
 
       ```shell
-      ./network.sh deployCC -ccn basic -ccp ../smartcontract/chaincode-go/ -ccl go
+      ./network.sh deployCC -ccn legalContract -ccp ../smartcontract/chaincode-go/ -ccl go -c olab
       ```
 
     - To deploy the **Java** chaincode implementation:

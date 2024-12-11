@@ -23,7 +23,7 @@ public class GetLegalContractByIdUseCaseImpl implements GetLegalContractByIdUseC
      */
     @Override
     public LegalContract readLegalContractById(String contractId) throws GatewayException, IOException {
-        byte[] evaluateResult = contract.evaluateTransaction("ReadAsset", contractId);
+        byte[] evaluateResult = contract.evaluateTransaction("ReadLegalContract", contractId);
         return objectMapper.readValue(evaluateResult, new TypeReference<>() {
         });
     }

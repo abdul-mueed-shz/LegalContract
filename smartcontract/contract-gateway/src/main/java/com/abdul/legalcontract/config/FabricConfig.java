@@ -3,8 +3,10 @@ package com.abdul.legalcontract.config;
 import io.grpc.Grpc;
 import io.grpc.ManagedChannel;
 import io.grpc.TlsChannelCredentials;
+import lombok.RequiredArgsConstructor;
 import org.hyperledger.fabric.client.*;
 import org.hyperledger.fabric.client.identity.*;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -17,65 +19,67 @@ import java.security.cert.CertificateException;
 import java.util.concurrent.TimeUnit;
 
 @Configuration
+@RequiredArgsConstructor
 public class FabricConfig {
 
-    public static final String MSP_ID = System.getenv().getOrDefault("MSP_ID", "Org1MSP");
+    @Value("${fabric.msp-id}")
+    public String mspId;
+
     // Gateway peer end point.
-    public static final String PEER_ENDPOINT = "localhost:7051";
+    @Value("${fabric.peer-endpoint}")
+    private String peerEndpoint;
 
-    public static final String OVERRIDE_AUTH = "peer0.org1.example.com";
+    @Value("${fabric.override-auth}")
+    public String overrideAuth;
 
-    // Path to crypto materials.
-    public static final Path CRYPTO_PATH =
-            Paths.get("").toAbsolutePath()
-                    .resolve("network/organizations/peerOrganizations/org1.example.com");
-    // Path to user certificate.
-    public static final Path CERT_DIR_PATH =
-            CRYPTO_PATH.resolve(Paths.get("users/User1@org1.example.com/msp/signcerts"));
+    @Value("${fabric.network-organizations-path}")
+    public String peerOrganizationPath;
 
-    // Path to user private key directory.
-    public static final Path KEY_DIR_PATH =
-            CRYPTO_PATH.resolve(Paths.get("users/User1@org1.example.com/msp/keystore"));
+    @Value("${fabric.peer-organization}")
+    public String peerOrganizationName;
 
-    // Path to peer tls certificate.
-    public static final Path TLS_CERT_PATH =
+    @Value("${fabric.peer-organization-user-path}")
+    public String peerOrganizationUserPath;
 
-            CRYPTO_PATH.resolve(Paths.get("peers/peer0.org1.example.com/tls/ca.crt"));
+    @Value("${fabric.peer-organization-tls-cert-path}")
+    public String peerOrganizationTlsCertPath;
 
-    public static final String CHANNEL_NAME =
-            System.getenv().getOrDefault("CHANNEL_NAME", "olab");
+    @Value("${fabric.channel-name}")
+    public String channelName;
 
-    public static final String CHAINCODE_NAME =
-            System.getenv().getOrDefault("CHAINCODE_NAME", "legalContract");
-
-    private static final Path CHECKPOINT_FILE = Paths.get("checkpoint.json");
+    @Value("${fabric.chaincode-name}")
+    public String chaincodeName;
 
     @Bean
-    Checkpointer getFileCheckPointer() throws IOException {
-        return new FileCheckpointer(CHECKPOINT_FILE);
+    Checkpointer getFileCheckPointer() {
+        return new InMemoryCheckpointer();
     }
 
-    @Bean
+    @Bean("legalContract")
     public Contract getLegalContractBean(Network network) {
         // Use the injected Gateway bean to get the contract
-        return network.getContract(CHAINCODE_NAME);
+        return network.getContract(chaincodeName);
     }
 
-    @Bean
+    @Bean("olab")
     public Network getOlabNetwork(Gateway gateway) {
         // Use the injected Gateway bean to get the contract
-        return gateway.getNetwork(CHANNEL_NAME);
+        return gateway.getNetwork(channelName);
     }
 
     @Bean
     public Gateway getGateway(ManagedChannel managedChannel)
             throws CertificateException, IOException, InvalidKeyException {
+
+        Path cryptoPath = getNetworkOrganizationsBasePath();
+        Path certDirectoryPath = cryptoPath.resolve(Paths.get(peerOrganizationUserPath + "/msp/signcerts"));
+        Path keyDirectoryPath = cryptoPath.resolve(Paths.get(peerOrganizationUserPath + "/msp/keystore"));
+
         Gateway.Builder builder = Gateway.newInstance()
-                .identity(newIdentity())
-                .signer(newSigner())
+                .identity(newIdentity(certDirectoryPath))
+                .signer(newSigner(keyDirectoryPath))
                 .hash(Hash.SHA256)
                 .connection(managedChannel)
-                // Default timeouts for different gRPC calls
                 .evaluateOptions(options -> options.withDeadlineAfter(5, TimeUnit.SECONDS))
                 .endorseOptions(options -> options.withDeadlineAfter(15, TimeUnit.SECONDS))
                 .submitOptions(options -> options.withDeadlineAfter(5, TimeUnit.SECONDS))
@@ -85,23 +89,24 @@ public class FabricConfig {
 
     @Bean
     public ManagedChannel newGrpcConnection() throws IOException {
+        Path tlsCertificatePath = getNetworkOrganizationsBasePath().resolve(Paths.get(peerOrganizationTlsCertPath));
         var credentials = TlsChannelCredentials.newBuilder()
-                .trustManager(TLS_CERT_PATH.toFile())
+                .trustManager(tlsCertificatePath.toFile())
                 .build();
-        return Grpc.newChannelBuilder(PEER_ENDPOINT, credentials)
-                .overrideAuthority(OVERRIDE_AUTH)
+        return Grpc.newChannelBuilder(peerEndpoint, credentials)
+                .overrideAuthority(overrideAuth)
                 .build();
     }
 
-    public Identity newIdentity() throws IOException, CertificateException {
-        try (var certReader = Files.newBufferedReader(getFirstFilePath(CERT_DIR_PATH))) {
+    public Identity newIdentity(Path certDirectoryPath) throws IOException, CertificateException {
+        try (var certReader = Files.newBufferedReader(getFirstFilePath(certDirectoryPath))) {
             var certificate = Identities.readX509Certificate(certReader);
-            return new X509Identity(MSP_ID, certificate);
+            return new X509Identity(mspId, certificate);
         }
     }
 
-    public Signer newSigner() throws IOException, InvalidKeyException {
-        try (var keyReader = Files.newBufferedReader(getFirstFilePath(KEY_DIR_PATH))) {
+    public Signer newSigner(Path keyDirectoryPath) throws IOException, InvalidKeyException {
+        try (var keyReader = Files.newBufferedReader(getFirstFilePath(keyDirectoryPath))) {
             var privateKey = Identities.readPrivateKey(keyReader);
             return Signers.newPrivateKeySigner(privateKey);
         }
@@ -112,4 +117,10 @@ public class FabricConfig {
             return keyFiles.findFirst().orElseThrow();
         }
     }
+
+    public Path getNetworkOrganizationsBasePath() {
+        return Paths.get("").toAbsolutePath().resolve(peerOrganizationPath + peerOrganizationName);
+    }
+
+
 }

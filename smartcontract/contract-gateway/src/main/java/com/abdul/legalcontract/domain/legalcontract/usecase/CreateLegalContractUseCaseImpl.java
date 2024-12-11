@@ -24,7 +24,7 @@ public class CreateLegalContractUseCaseImpl implements CreateLegalContractUseCas
             throws EndorseException, SubmitException, CommitStatusException, CommitException, JsonProcessingException {
         String participantsJson = objectMapper.writeValueAsString(legalContract.getParticipants());
         contract.submitTransaction(
-                "CreateAsset",
+                "CreateLegalContract",
                 legalContract.getId(),
                 legalContract.getTitle(),
                 legalContract.getDescription(),

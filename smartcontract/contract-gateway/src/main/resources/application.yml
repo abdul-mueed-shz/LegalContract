@@ -3,9 +3,20 @@ spring:
     name: legalcontract
 
 server:
-  port: 9000
+  port: 9001
   servlet:
     session:
       timeout: 50000ms # Timeout in milliseconds
   tomcat:
     connection-timeout: 50000 # Timeout in milliseconds
+
+fabric:
+  msp-id: Org1MSP
+  peer-endpoint: localhost:7051
+  override-auth: peer0.org1.example.com
+  network-organizations-path: network/organizations/peerOrganizations/ # Base organizations folder path
+  peer-organization: org1.example.com # Organization whose identity is to be used
+  peer-organization-user-path: users/User1@org1.example.com # Organization user to auth from
+  peer-organization-tls-cert-path: peers/peer0.org1.example.com/tls/ca.crt # Organization's TLS certificate path
+  chaincode-name: legalContract
+  channel-name: olab

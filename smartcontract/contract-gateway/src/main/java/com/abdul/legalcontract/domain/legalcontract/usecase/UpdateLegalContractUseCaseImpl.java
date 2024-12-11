@@ -23,7 +23,7 @@ public class UpdateLegalContractUseCaseImpl implements UpdateLegalContractUseCas
             throws EndorseException, CommitException, SubmitException, CommitStatusException, JsonProcessingException {
         String participantsJson = objectMapper.writeValueAsString(legalContract.getParticipants());
         contract.submitTransaction(
-                "UpdateAsset",
+                "UpdateLegalContract",
                 legalContract.getId(),
                 legalContract.getTitle(),
                 legalContract.getDescription(),

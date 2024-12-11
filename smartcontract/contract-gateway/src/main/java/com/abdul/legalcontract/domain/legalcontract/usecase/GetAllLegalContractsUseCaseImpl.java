@@ -25,7 +25,7 @@ public class GetAllLegalContractsUseCaseImpl implements GetAllLegalContractsUseC
      */
     @Override
     public List<LegalContract> getAllLegalContracts() throws GatewayException, IOException {
-        byte[] result = contract.evaluateTransaction("GetAllAssets");
+        byte[] result = contract.evaluateTransaction("GetAllLegalContracts");
 
         if (result.length == 0) {
             return new ArrayList<>();

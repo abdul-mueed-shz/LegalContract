@@ -18,6 +18,6 @@ public class DeleteLegalContractUseCaseImpl implements DeleteLegalContractUseCas
     @Override
     public void deleteLegalContract(String contractId) throws EndorseException, SubmitException, CommitStatusException, CommitException {
 
-        contract.submitTransaction("DeleteAsset", contractId);
+        contract.submitTransaction("DeleteLegalContract", contractId);
     }
 }
