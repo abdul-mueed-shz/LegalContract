@@ -1,16 +1,17 @@
-# Asset transfer basic sample
+# Legal Contract basic project
 
-The asset transfer basic sample demonstrates:
+The legal contract basic project demonstrates:
 
 - Connecting a client application to a Fabric blockchain network.
 - Submitting smart contract transactions to update ledger state.
 - Evaluating smart contract transactions to query ledger state.
 - Handling errors in transaction invocation.
 
-## About the sample
+## About the project
 
-This sample includes smart contract and application code in multiple languages. This sample shows create, read, update,
-transfer and delete of an asset.
+This project includes smart contract and application code in multiple languages. This project shows create, read,
+update,
+transfer and delete of an legal contract.
 
 For a more detailed walk-through of the application code and client API usage, refer to
 the [Running a Fabric Application tutorial](https://hyperledger-fabric.readthedocs.io/en/latest/write_first_app.html) in
@@ -28,45 +29,39 @@ attention to the sequence of:
 
 The smart contract (in folder `chaincode-xyz`) implements the following functions to support the application:
 
-- CreateAsset
-- ReadAsset
-- UpdateAsset
-- DeleteAsset
-- TransferAsset
+- CreateLegalContract
+- ReadLegalContract
+- UpdateLegalContract
+- DeleteLegalContract
 
-Note that the asset transfer implemented by the smart contract is a simplified scenario, without ownership validation,
+Note that the legal contract implemented by the smart contract is a simplified scenario, without ownership validation,
 meant only to demonstrate how to invoke transactions.
 
-## Running the sample
+## Running the project
 
-The Fabric network is used to deploy and run this sample. Follow these steps in order:
+The Fabric network is used to deploy and run this project. Follow these steps in order:
 
 1. Create the network and a channel (from the `network` folder).
 
    ```
-   ./network.sh up createChannel -c olab -ca
+   ./network.sh up {CHANNEL_NAME} -c olab -ca
    ```
 
-1. Deploy one of the smart contract implementations (from the `network` folder).
+2. Deploy one of the smart contract implementations (from the `network` folder).
 
     - To deploy the **Go** chaincode implementation:
 
       ```shell
-      ./network.sh deployCC -ccn legalContract -ccp ../smartcontract/chaincode-go/ -ccl go -c olab
+      ./network.sh deployCC -ccn {CHAINCODE_NAME} -ccp ../smartcontract/chaincode-go/ -ccl go -c {CHANNEL_NAME}
       ```
 
-    - To deploy the **Java** chaincode implementation:
-      ```shell
-      ./network.sh deployCC -ccn basic -ccp ../smartcontract/chaincode-java/ -ccl java
-      ```
-
-1. Run the application (from the `smartcontract` folder).
+3. Run the application (from the `smartcontract` folder).
 
 
-- To run the **Java** sample application:
+- To run the **Java** project application:
   ```shell
-  cd application-gateway-java
-  ./gradlew run
+  cd contract-gateway
+  mvn spring-boot:run
   ```
 
 ## Clean up
