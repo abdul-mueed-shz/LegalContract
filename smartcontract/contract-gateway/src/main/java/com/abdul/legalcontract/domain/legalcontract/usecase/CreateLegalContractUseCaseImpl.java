@@ -5,11 +5,15 @@ import com.abdul.legalcontract.domain.legalcontract.port.in.CreateLegalContractU
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.hyperledger.fabric.client.*;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class CreateLegalContractUseCaseImpl implements CreateLegalContractUseCase {
 
     private final Contract contract;
@@ -20,17 +24,19 @@ public class CreateLegalContractUseCaseImpl implements CreateLegalContractUseCas
      * the ledger.
      */
     @Override
-    public void createLegalContract(LegalContract legalContract)
+    public String createLegalContract(LegalContract legalContract)
             throws EndorseException, SubmitException, CommitStatusException, CommitException, JsonProcessingException {
         String participantsJson = objectMapper.writeValueAsString(legalContract.getParticipants());
+        String uuId = UUID.randomUUID().toString();
         contract.submitTransaction(
                 "CreateLegalContract",
-                legalContract.getId(),
+                uuId,
                 legalContract.getTitle(),
                 legalContract.getDescription(),
                 participantsJson
         );
-        System.out.println("*** Transaction committed successfully");
+        log.info("Transaction committed successfully with uuid: {}", uuId);
+        return uuId;
     }
 
 }

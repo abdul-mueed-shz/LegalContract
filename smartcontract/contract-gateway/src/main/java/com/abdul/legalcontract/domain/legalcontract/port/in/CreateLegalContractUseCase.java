@@ -9,6 +9,6 @@ import org.hyperledger.fabric.client.SubmitException;
 
 public interface CreateLegalContractUseCase {
 
-    void createLegalContract(LegalContract legalContract)
+    String createLegalContract(LegalContract legalContract)
             throws EndorseException, SubmitException, CommitStatusException, CommitException, JsonProcessingException;
 }

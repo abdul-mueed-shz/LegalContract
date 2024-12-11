@@ -49,14 +49,13 @@ public class LegalContractController {
     public ResponseEntity<Void> updateLegalContract(@RequestBody LegalContract legalContract)
             throws GatewayException, IOException, CommitException {
         updateLegalContractUseCase.updateLegalContract(legalContract);
-        return ResponseEntity.accepted().build();
+        return ResponseEntity.ok().build();
     }
 
 
     @PostMapping
-    public ResponseEntity<Void> createLegalContract(@RequestBody LegalContract legalContract)
+    public ResponseEntity<String> createLegalContract(@RequestBody LegalContract legalContract)
             throws GatewayException, IOException, CommitException {
-        createLegalContractUseCase.createLegalContract(legalContract);
-        return ResponseEntity.accepted().build();
+        return ResponseEntity.ok(createLegalContractUseCase.createLegalContract(legalContract));
     }
 }

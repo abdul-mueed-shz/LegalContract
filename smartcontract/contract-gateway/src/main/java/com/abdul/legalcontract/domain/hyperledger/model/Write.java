@@ -1,6 +1,5 @@
 package com.abdul.legalcontract.domain.hyperledger.model;
 
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import org.hyperledger.fabric.protos.ledger.rwset.kvrwset.KVWrite;
@@ -14,8 +13,6 @@ public final class Write {
     private final String namespace;
     private final String key;
     private final boolean isDelete;
-
-    @Getter(AccessLevel.NONE)
     private final String value; // Store as String for readability when serialized to JSON.
 
     public Write(final String channelName, final String namespace, final KVWrite write) {
@@ -31,7 +28,7 @@ public final class Write {
      *
      * @return A ledger value.
      */
-    public byte[] getValue() {
+    public byte[] getValueByes() {
         return value.getBytes(StandardCharsets.UTF_8);
     }
 }

@@ -57,7 +57,8 @@ func (s *SmartContract) CreateLegalContract(
 	ctx contractapi.TransactionContextInterface,
 	id string,
 	title string,
-	description string, participantsJSON string) error {
+	description string,
+	participantsJSON string) error {
 	// Parse the JSON string into a Go slice
 	var participants []string
 	err := json.Unmarshal([]byte(participantsJSON), &participants)

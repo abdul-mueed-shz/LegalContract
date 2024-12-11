@@ -44,9 +44,14 @@ public class ProcessTransactionUseCaseImpl implements ProcessTransactionUseCase 
                     .map(write -> new Write(channelName, contractName, write))
                     .forEach(writes.get()::add);
         }
-        System.out.println("TransactionId" + transactionId);
-        System.out.println("ChannelName" + channelName);
-        System.out.println("Writes" + writes.get());
+        System.out.println("TransactionId -> " + transactionId);
+        System.out.println("ChannelName -> " + channelName);
+        writes.get().forEach(write -> {
+            System.out.println("NameSpace -> " + write.getNamespace());
+            System.out.println("isDelete -> " + write.isDelete());
+            System.out.println("Key -> " + write.getKey());
+            System.out.println("Content -> " + write.getValue());
+        });
         return new ArrayList<>();
     }
 }
