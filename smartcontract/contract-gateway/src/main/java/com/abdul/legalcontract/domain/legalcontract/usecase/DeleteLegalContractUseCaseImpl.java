@@ -1,5 +1,7 @@
 package com.abdul.legalcontract.domain.legalcontract.usecase;
 
+import static com.abdul.legalcontract.adapter.in.constants.FabricConstants.DELETE_LEGAL_CONTRACTS;
+
 import com.abdul.legalcontract.domain.legalcontract.port.in.DeleteLegalContractUseCase;
 import lombok.RequiredArgsConstructor;
 import org.hyperledger.fabric.client.*;
@@ -18,6 +20,6 @@ public class DeleteLegalContractUseCaseImpl implements DeleteLegalContractUseCas
     @Override
     public void deleteLegalContract(String contractId) throws EndorseException, SubmitException, CommitStatusException, CommitException {
 
-        contract.submitTransaction("DeleteLegalContract", contractId);
+        contract.submitTransaction(DELETE_LEGAL_CONTRACTS, contractId);
     }
 }

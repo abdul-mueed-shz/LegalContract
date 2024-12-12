@@ -1,5 +1,7 @@
 package com.abdul.legalcontract.domain.legalcontract.usecase;
 
+import static com.abdul.legalcontract.adapter.in.constants.FabricConstants.GET_ALL_LEGAL_CONTRACTS;
+
 import com.abdul.legalcontract.domain.legalcontract.model.LegalContract;
 import com.abdul.legalcontract.domain.legalcontract.port.in.GetAllLegalContractsUseCase;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -25,7 +27,7 @@ public class GetAllLegalContractsUseCaseImpl implements GetAllLegalContractsUseC
      */
     @Override
     public List<LegalContract> getAllLegalContracts() throws GatewayException, IOException {
-        byte[] result = contract.evaluateTransaction("GetAllLegalContracts");
+        byte[] result = contract.evaluateTransaction(GET_ALL_LEGAL_CONTRACTS);
 
         if (result.length == 0) {
             return new ArrayList<>();

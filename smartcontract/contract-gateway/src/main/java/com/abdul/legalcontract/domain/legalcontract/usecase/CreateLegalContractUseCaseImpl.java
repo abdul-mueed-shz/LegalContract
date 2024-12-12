@@ -1,5 +1,6 @@
 package com.abdul.legalcontract.domain.legalcontract.usecase;
 
+import static com.abdul.legalcontract.adapter.in.constants.FabricConstants.CREATE_LEGAL_CONTRACT;
 import com.abdul.legalcontract.domain.legalcontract.model.LegalContract;
 import com.abdul.legalcontract.domain.legalcontract.port.in.CreateLegalContractUseCase;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -29,7 +30,7 @@ public class CreateLegalContractUseCaseImpl implements CreateLegalContractUseCas
         String participantsJson = objectMapper.writeValueAsString(legalContract.getParticipants());
         String uuId = UUID.randomUUID().toString();
         contract.submitTransaction(
-                "CreateLegalContract",
+                CREATE_LEGAL_CONTRACT,
                 uuId,
                 legalContract.getTitle(),
                 legalContract.getDescription(),

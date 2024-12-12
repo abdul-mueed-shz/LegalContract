@@ -1,5 +1,7 @@
 package com.abdul.legalcontract.domain.legalcontract.usecase;
 
+import static com.abdul.legalcontract.adapter.in.constants.FabricConstants.READ_LEGAL_CONTRACT;
+
 import com.abdul.legalcontract.domain.legalcontract.model.LegalContract;
 import com.abdul.legalcontract.domain.legalcontract.port.in.GetLegalContractByIdUseCase;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -23,7 +25,7 @@ public class GetLegalContractByIdUseCaseImpl implements GetLegalContractByIdUseC
      */
     @Override
     public LegalContract readLegalContractById(String contractId) throws GatewayException, IOException {
-        byte[] evaluateResult = contract.evaluateTransaction("ReadLegalContract", contractId);
+        byte[] evaluateResult = contract.evaluateTransaction(READ_LEGAL_CONTRACT, contractId);
         return objectMapper.readValue(evaluateResult, new TypeReference<>() {
         });
     }
